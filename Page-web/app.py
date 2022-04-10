@@ -101,7 +101,6 @@ def rendre_velo():
         user_name = request.form["nm"]
         user_pname = request.form["pm"]
         user_date = request.form["dt"]
-        #image = request.form["image"]
 
         reservation = [str(user_name), str(user_pname), str(user_date)]
         supp = ejection(reservation)
