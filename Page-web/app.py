@@ -106,10 +106,10 @@ def rendre_velo():
         reservation = [str(user_name), str(user_pname), str(user_date)]
         supp = ejection(reservation)
         if supp:
-            return validation_suppression
+            return validation_suppression()
 
         else:
-            return invalidation_suppression
+            return invalidation_suppression()
 
     else:
         return render_template("home.html")
