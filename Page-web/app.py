@@ -4,7 +4,7 @@ import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 import datetime as dt
 
-Nombre_velo = 1
+Nombre_velo = 10
 
 scope = ['https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file",
          "https://www.googleapis.com/auth/drive"]
@@ -67,7 +67,21 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    
+    # Load current count
+    f = open("count.txt", "r")
+    count = int(f.read())
+    f.close()
+
+    # Increment the count
+    count += 1
+
+    # Overwrite the count
+    f = open("count.txt", "w")
+    f.write(str(count))
+    f.close()
+
+    return render_template("home.html", count=count)
 
 
 @app.route("/login")
@@ -114,6 +128,11 @@ def rendre_velo():
         return render_template("home.html")
 
 
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+
 @app.route("/<validation>")
 def validation(nm,pm,dt):
     return f"""<p2>Demande de prêt enregistrée au nom de <I><B>{nm} {pm} </B> le <B>{dt}</B></I> </p2>""" \
@@ -134,7 +153,7 @@ def validation_suppression():
 
 @app.route("/<invalidation_suppression>")
 def invalidation_suppression():
-    return f"<p2>La demande n'a pas abouti, les information sont-elle valide ?</p2>"\
+    return f"<p2>La demande n'a pas abouti, les informations sont-elles valides ?</p2>"\
            f""" <nav><ul><li><a href="/logout"> Rendre un vélo </a></li></ul></nav>"""
 
 if __name__ == "__main__":
