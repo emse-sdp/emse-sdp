@@ -2,9 +2,7 @@
 <html>
     <head>
         <style type=text/css>
-            img {
-  vertical-align:middle;
-}
+            img { vertical-align:middle; }
             body   {
                     height: 125vh;
                     margin-top: 10px;
@@ -12,6 +10,12 @@
                     background-size: cover;
                     font-family: sans-serif;
                     }
+            div {
+                  text-align: bottom;
+                  margin-top: 80px;
+                  height: 200vh;
+                  padding: 100px;
+                 }
         </style>
         <title>Home page</title>
     </head>
@@ -44,13 +48,20 @@
                                 <li>
                                     <a href="/logout"> Rendre un vélo </a>
                                 </li>
+                                <li>
+                                    <a href="/contact"> Nous contacter </a>
+                                </li>
                             </ul>
                         </nav>
             </blockquote>
         </BLOCKQUOTE>
     </BLOCKQUOTE>
-        </body>
+    </body>
 </form>
-
+   <body>
+    <div>
+    <p><I>This site has been visited {{ count }} times.</I> </p>
+    </div>
+   </body>
 {% endblock %}
 </html>
