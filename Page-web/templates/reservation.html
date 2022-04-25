@@ -9,9 +9,14 @@
         <title>Home page</title>
     </head>
     <body>
-        <h1> <img src="https://imagizer.imageshack.com/img922/636/oNBuh3.jpg" alt="Projet citoyen Mines sans voiture 2021/2022" height = 150 width = 150 >
+        <h1>
+            <a href="/">
+                <img src="https://imagizer.imageshack.com/img922/636/oNBuh3.jpg" alt="Projet citoyen Mines sans voiture 2021/2022" height = 150 width = 150 >
+            </a>
             Mines sans voiture système de prêt
-        <img src="https://imagizer.imageshack.com/img922/636/oNBuh3.jpg" alt="Projet citoyen Mines sans voiture 2021/2022" height = 150 width = 150 >
+            <a href="/">
+            <img src="https://imagizer.imageshack.com/img922/636/oNBuh3.jpg" alt="Projet citoyen Mines sans voiture 2021/2022" height = 150 width = 150 >
+            </a>
         </h1>
         <BLOCKQUOTE>
             <BLOCKQUOTE>
@@ -34,7 +39,7 @@
                 <p><B>Prénom:</B></p>
                 <p><input type="text" name="pm" /></p>
                 <p><B>Date de réservation (jj/mm/aaaa):</B></p>
-                <p><input type="date" id="start" name="dt" value="2022-04-15" min="2022-01-01" max="2022-6-31"></p>
+                <p><input type="date" id="start" name="dt" value="<?php echo date('Y-m-d'); ?>" min="<?php echo date('Y-m-d'); ?>" max="2022-6-31"></p>
                 <p><input type="submit" value="envoyer"/></p>
 
             </blockquote>
