@@ -3,6 +3,16 @@ import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 import datetime as dt
+import base64
+from PIL import Image
+from io import BytesIO
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+
+
+gauth = GoogleAuth()
+drive = GoogleDrive(gauth)
+images_file_id = '1J6Cbzo3L4ZELWl-I4cQxOH93nqGSmvA5'
 
 Nombre_velo = 10
 
@@ -61,32 +71,33 @@ def available(date):
     return True
 
 
+def render_picture(data):
+
+    render_pic = base64.b64encode(data).decode('ascii')
+    return render_pic
+
+
+def ajout_photo(img):
+
+    gfile = drive.CreateFile({'parents': [{'id': images_file_id}]})
+    # Read file and set it as the content of this instance.
+    gfile.SetContentFile(img)
+    gfile.Upload()  # Upload the file.
+
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def home():
-    
-    # Load current count
-    f = open("count.txt", "r")
-    count = int(f.read())
-    f.close()
 
-    # Increment the count
-    count += 1
-
-    # Overwrite the count
-    f = open("count.txt", "w")
-    f.write(str(count))
-    f.close()
-
-    return render_template("home.html", count=count)
+    return render_template("home.html")
 
 
 @app.route("/login")
 def login():
     return render_template("reservation.html")
+
 
 @app.route("/login", methods=["POST", "GET"])
 def reservation():
@@ -94,8 +105,12 @@ def reservation():
         user_name = request.form["nm"]
         user_pname = request.form["pm"]
         user_date = request.form["dt"]
-        if available(user_date) :
-            reservation = [str(user_name), str(user_pname), str(user_date), str(dt.datetime.now())]
+
+        today = dt.datetime.now()
+        date = dt.datetime.strptime(user_date, '%Y-%m-%d')
+
+        if available(user_date) and (date > today):
+            reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date), str(dt.datetime.now())]
             insertion(reservation)
             return validation(user_name, user_pname, user_date)
         else :
@@ -115,8 +130,13 @@ def rendre_velo():
         user_name = request.form["nm"]
         user_pname = request.form["pm"]
         user_date = request.form["dt"]
+        image = request.files["image"]
+        data = image.read()
+        data = render_picture(data)
+        im = Image.open(BytesIO(base64.b64decode(data)))
+        im.save('image.png', 'PNG')
 
-        reservation = [str(user_name), str(user_pname), str(user_date)]
+        reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date)]
         supp = ejection(reservation)
         if supp:
             return validation_suppression()
@@ -147,14 +167,15 @@ def invalidation(date):
 
 @app.route("/<validation_suppression>")
 def validation_suppression():
-    return f"<p2>Le vélo a bien été rendu, au plaisir de vous revoir parmi nous ! \n vous pouvez quitter la page ou revenir à l'accueil</p2>"\
-           f"""<nav><ul><li><a href="/"> Home </a></li></ul></nav>"""
+    return f"<p2>Le vélo a bien été rendu, au plaisir de vous revoir parmi nous ! \n Vous pouvez quitter la page ou revenir à l'accueil</p2>"\
+           f"""<nav><ul><li><a href="/"> Retour à l'accueil </a></li></ul></nav>"""
 
 
 @app.route("/<invalidation_suppression>")
 def invalidation_suppression():
     return f"<p2>La demande n'a pas abouti, les informations sont-elles valides ?</p2>"\
            f""" <nav><ul><li><a href="/logout"> Rendre un vélo </a></li></ul></nav>"""
+
 
 if __name__ == "__main__":
     app.run(debug=True)
