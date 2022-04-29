@@ -9,8 +9,34 @@ from io import BytesIO
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-
 gauth = GoogleAuth()
+# Try to load saved client credentials
+gauth.LoadCredentialsFile("mycreds.txt")
+
+if gauth.credentials is None:
+    # Authenticate if they're not there
+
+    # This is what solved the issues:
+    gauth.GetFlow()
+    gauth.flow.params.update({'access_type': 'offline'})
+    gauth.flow.params.update({'approval_prompt': 'force'})
+
+    gauth.LocalWebserverAuth()
+
+elif gauth.access_token_expired:
+
+    # Refresh them if expired
+
+    gauth.Refresh()
+else:
+
+    # Initialize the saved creds
+
+    gauth.Authorize()
+
+# Save the current credentials to a file
+gauth.SaveCredentialsFile("mycreds.txt")
+
 drive = GoogleDrive(gauth)
 images_file_id = '1J6Cbzo3L4ZELWl-I4cQxOH93nqGSmvA5'
 
@@ -77,11 +103,11 @@ def render_picture(data):
     return render_pic
 
 
-def ajout_photo(img):
+def ajout_photo(img, img_name):
 
-    gfile = drive.CreateFile({'parents': [{'id': images_file_id}]})
+    gfile = drive.CreateFile({'parents': [{'id': images_file_id}], 'title': img_name})
     # Read file and set it as the content of this instance.
-    gfile.SetContentFile(img)
+    gfile.SetContentString(img)
     gfile.Upload()  # Upload the file.
 
 
@@ -133,12 +159,14 @@ def rendre_velo():
         image = request.files["image"]
         data = image.read()
         data = render_picture(data)
-        im = Image.open(BytesIO(base64.b64decode(data)))
-        im.save('image.png', 'PNG')
+        im = BytesIO(base64.b64decode(data))
+        img_name = str(user_name) + '_' + str(user_date) + '.png'
+        #im.save(img_name, 'PNG')
 
         reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date)]
         supp = ejection(reservation)
         if supp:
+            ajout_photo(str(im.getvalue()), img_name)
             return validation_suppression()
 
         else:
