@@ -4,7 +4,6 @@ import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 import datetime as dt
 import base64
-from PIL import Image
 from io import BytesIO
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -161,7 +160,6 @@ def rendre_velo():
         data = render_picture(data)
         im = BytesIO(base64.b64decode(data))
         img_name = str(user_name) + '_' + str(user_date) + '.png'
-        #im.save(img_name, 'PNG')
 
         reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date)]
         supp = ejection(reservation)
