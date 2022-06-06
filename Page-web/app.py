@@ -60,6 +60,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('secret_sheet.json', sc
 client = gspread.authorize(creds)
 
 sheet = client.open('SDP_Test').sheet1
+code_sheet = client.open('SDP_Code').sheet1
 
 # Save the current credentials to a file
 Client_secret = "client_secrets.json"
@@ -91,7 +92,7 @@ def ejection(reservation):
 
     request_data = sheet.get_all_values()
     df = pd.DataFrame(request_data)
-    df.columns = ['Nom', 'Prénom', 'date', 'datetime']
+    df.columns = ['Nom', 'Prénom', 'date', 'datetime', 'bike_Num']
     flag = False
 
     for i in df.index:
@@ -109,15 +110,17 @@ def available(date):
     request_data = sheet.get_all_values()
     df = pd.DataFrame(request_data)
     if len(df) == 0 :
-        return True
-    df.columns = ['Nom', 'Prénom', 'date', 'datetime']
+        return True, 1
+    df.columns = ['Nom', 'Prénom', 'date', 'datetime', 'bike_Num']
     N = 0
+    bike_avail = [i for i in range(1,11)]
     for i in df.index:
         if df['date'][i] == date :
             N += 1
+            bike_avail.remove(df['bike_Num'])
         if N == Nombre_velo :
-            return False
-    return True
+            return False, -1
+    return True, bike_avail[0]
 
 
 def render_picture(data):
@@ -141,6 +144,15 @@ def ajout_photo(img, img_name):
         media_body=media,
         fields='id'
     ).execute()
+
+
+def get_code(bike_Num):
+
+    request_data = code_sheet.get_all_values()
+    df = pd.DataFrame(request_data)
+    df.columns = ['Bike_Code']
+
+    return df['Bike_Code'][bike_Num]
 
 
 app = Flask(__name__)
@@ -167,10 +179,14 @@ def reservation():
         today = dt.datetime.now()
         date = dt.datetime.strptime(user_date, '%Y-%m-%d')
 
-        if available(user_date) and (date > today):
-            reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date), str(dt.datetime.now())]
+        avail, bike_Num = available(user_date)
+
+        if avail and (date > today):
+            reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date), str(dt.datetime.now()), str(bike_Num)]
             insertion(reservation)
-            return validation(user_name, user_pname, user_date)
+            code = get_code(bike_Num)
+            return validation(user_name, user_pname, user_date, code)
+
         else :
             return invalidation(user_date)
     else:
@@ -211,8 +227,8 @@ def contact():
 
 
 @app.route("/<validation>")
-def validation(nm,pm,dt):
-    return f"""<p2>Demande de prêt enregistrée au nom de <I><B>{nm} {pm} </B> le <B>{dt}</B></I> </p2>""" \
+def validation(nm,pm,dt,bn):
+    return f"""<p2>Demande de prêt enregistrée au nom de <I><B>{nm} {pm} </B> le <B>{dt}</B> le code du vélo est <B>{bn}<B></I> </p2>""" \
            f""" <nav><ul><li><a href="/"> Home </a></li></ul></nav>"""
 
 
