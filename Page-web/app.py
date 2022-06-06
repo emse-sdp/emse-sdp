@@ -96,7 +96,7 @@ def ejection(reservation):
     flag = False
 
     for i in df.index:
-        if [df['Nom'][i], df['Prénom'][i], df['date'][i]] == reservation[0:3]:
+        if [df['Nom'][i], df['Prénom'][i], df['date'][i], df['bike_Num'][i]] == reservation[0:4]:
             LineNumber = i+1
             sheet.delete_rows(LineNumber)
             flag = True
@@ -117,7 +117,7 @@ def available(date):
     for i in df.index:
         if df['date'][i] == date :
             N += 1
-            bike_avail.remove(df['bike_Num'])
+            bike_avail.remove(int(df['bike_Num'][i]))
         if N == Nombre_velo :
             return False, -1
     return True, bike_avail[0]
@@ -204,11 +204,12 @@ def rendre_velo():
         user_name = request.form["nm"]
         user_pname = request.form["pm"]
         user_date = request.form["dt"]
+        bike_Num = request.form["bn"]
         image = request.files["image"]
         data = image.read()
         im = bytearray(data)
         img_name = str(user_name) + '_' + str(user_date) + '.png'
-        reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date)]
+        reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date), str(bike_Num)]
         supp = ejection(reservation)
         if supp:
             ajout_photo(im, img_name)
