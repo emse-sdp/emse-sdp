@@ -185,7 +185,7 @@ def reservation():
             reservation = [str(user_name).lower(), str(user_pname).lower(), str(user_date), str(dt.datetime.now()), str(bike_Num)]
             insertion(reservation)
             code = get_code(bike_Num)
-            return validation(user_name, user_pname, user_date, code)
+            return validation(user_name, user_pname, user_date, bike_Num, code)
 
         else :
             return invalidation(user_date)
@@ -227,8 +227,8 @@ def contact():
 
 
 @app.route("/<validation>")
-def validation(nm,pm,dt,bn):
-    return f"""<p2>Demande de prêt enregistrée au nom de <I><B>{nm} {pm} </B> le <B>{dt}</B> le code du vélo est <B>{bn}<B></I> </p2>""" \
+def validation(nm,pm,dt,bn,bc):
+    return f"""<p2>Demande de prêt enregistrée au nom de <I><B>{nm} {pm} </B> le <B>{dt}</B></I> <br> Le numéros du vélo est <B>{bn}<B><br> Le code du vélo est <B>{bc}<B></p2>""" \
            f""" <nav><ul><li><a href="/"> Home </a></li></ul></nav>"""
 
 
